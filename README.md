@@ -1,325 +1,75 @@
-# apifuse
+[update-readmes]   Mode: rewrite — migrating to template structure...
+# apifusefs
 
-`apifuse` is a user-space FUSE proof of concept that projects an OpenAPI-described REST API into a mounted read-only filesystem on Linux and MacOS (or on 
-Windows, in WSL2.)   The contents of the filesystem are dynamically populated with "files" and "directories" created in real-time with data received from 
-REST (HTTP) calls to an OpenAI-spec API. Obviously, that's gonna come at a cost of pretty high latency compared to an actual disk drive, but no one is 
-going to mount an API as a filesystem in order to top any IOPS benchmarks.
+[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/apifusefs)
 
+<!-- AI:start:what-it-does -->
+_Description pending._
+<!-- AI:end:what-it-does -->
 
-# How? 
-The mounted filesystem's root directory is populated at startup, informed by the structure in the spec file (openai.json, swagger.yaml, etc.) and the rest is
-populated as the subdirectories are listed, or when an attempt is made to access a specific filename within a subdirectory. 
+## Architecture
 
-For a field that is not an array containing other objects or k/v pairs, it is represented as a file, and the value of that field is stored *inside* the file, 
-so reading the file with the name of one of these k/v string pairs, will read the value corresponding to that key.
+<!-- AI:start:architecture -->
+_Architecture documentation pending._
+<!-- AI:end:architecture -->
 
-It can also mount a local JSON document directly as a static filesystem tree, which works the same in terms of keys and data, just without needing to reach 
-out over the network to an API in order to put that data on "disk".
+## Install
 
-Keeping that in mind, at this point you'll want to take care that you don't mount an API or JSON file that contains some gigantic data, but the fact that 
-even large databases that support storing JSON limit the size of the entire JSON document to typically under 1GB (and often well under), it's not much of a 
-realistic concern.  I just wouldn't recommend *intentionally trying to use apifuse in that way.
-
-# Design/Layout of the apifuse fs
-
-**fusefs** is designed around a pretty simple idea:
-
-- collections such as `/users/` become directories
-- resource ids such as `/users/3` become child directories
-- scalar fields become readable files
-- nested objects and arrays become subdirectories
-
-This turned out to be exceptionally navigable by myself, as someone who does most of their work in a bash shell. I *can* use curl, or perhaps a tool like 
-postman if I need to make many API requests, but it never feels very convenient to have to work that way, and if I'm not familiar with what may be *in* the
-data returned, I'm always needing to look closely at parenthese and brackets to try to understand the shape of any deeply nested structure. Being able to 
-just cd / and tab-complete, ls, cat, pipe, sed/awk, etc on the data, laid out clearly in my terminal feels much more natural to me. I suspect it might even 
-be simpler and easier in some cases for Agentic use, where listing directories, standard posix tool-calling, and even mounting filesystems don't require 
-special skills, or MCP servers, or  magic prompts in order for an LLM to accomplish things; they just "know" how to do this at boot time.  
-
-So.. if anyone uses apifuse in order to expose some API to an LLM Agent, I'd love to hear about it. Another thing that might make a compelling use case for apifuse for Agentic AI use is that you can mount the filesystem, and allow it to be seen by a sandboxed Agent, and they can get all of the data from whatever API you mounted *without* having to give the Agent any access to an API key, or JWT, etc. 
-
-## Current Status
-
-This is an early PoC. That said, "it works for me."  
-
-The current implementation focuses on:
-
-- OpenAPI-driven discovery of top-level collection and item `GET` routes
-- JSON-file offline mode (`--json-input`)
-- auth-token auth
-- strict schema-aware path filtering
-- short-lived response caching
-- optional collection-level symlink aliases such as `users/alice -> 3`
-
-It is currently read-only. `POST`, `PUT`, `PATCH`, and `DELETE` are not implemented yet.
-
-## Requirements
-
-- Python
-- `mfusepy`
-- a working [FUSE](https://www.kernel.org/doc/html/next/filesystems/fuse.html)/[macFUSE](https://macfuse.github.io/) environment
-
-## Suggested Installation
-
-- Create a new venv if needed 
-
-e.g. with:
-```bash
-python -mvenv .venv
-```
-or by using `uv`, `pipx`, etc.  if you prefer.
-
-- Install dependencies as needed, using your package manager of choice:
-
-e.g., with:
-```bash
-uv pip install -e .
-```
-
-Since `apifuse` is not yet packaged for PyPi and you will be running from  
-the cloned repo, the `-e` (editable) method is recommended.
-
-An entry-point to the cli will be installed into your venv's bin path such  
-that it will then be available just by invoking `apifuse` from within your  
-shell with the venv activated.  
-e.g., with (`source .venv/bin/activate` or `.\venv\Scripts\activate`)
-
-## Basic Usage
-
-**OpenAPI (HTTP/REST) mode:**
-
-Mount using a local OpenAPI/swagger json or yaml file and an explicit server URL:
+<!-- Add installation instructions here. This section is yours — the AI will not modify it. -->
 
 ```bash
-apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  /tmp/mnt_apifuse
+git clone https://github.com/Interested-Deving-1896/apifusefs.git
+cd apifusefs
 ```
 
-Then inspect the mounted tree:
+## Usage
 
-```bash
-ls /tmp/mnt_apifuse
-ls /tmp/mnt_apifuse/users
-ls /tmp/mnt_apifuse/users/3
-cat /tmp/mnt_apifuse/users/3/groups
+<!-- Add usage examples here. This section is yours — the AI will not modify it. -->
+
+## Configuration
+
+<!-- Document configuration options here. This section is yours — the AI will not modify it. -->
+
+## CI
+
+<!-- AI:start:ci -->
+_CI documentation pending._
+<!-- AI:end:ci -->
+
+## Mirror chain
+
+<!-- AI:start:mirror-chain -->
+This repo is maintained in [`Interested-Deving-1896/apifusefs`](https://github.com/Interested-Deving-1896/apifusefs) and mirrored through:
+
+```
+Interested-Deving-1896/apifusefs  ──►  OpenOS-Project-OSP/apifusefs  ──►  OpenOS-Project-Ecosystem-OOC/apifusefs
 ```
 
-**JSON (local file) mode:**
+Changes flow downstream automatically via the hourly mirror chain in
+[`fork-sync-all`](https://github.com/Interested-Deving-1896/fork-sync-all).
+Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-Deving-1896`.
+<!-- AI:end:mirror-chain -->
 
-Mount a local JSON file directly with no API callsi.
-Here I am using the output of a call to the GitHub API
-endpoint `/user/repos`a:
+## Contributors
 
+<!-- AI:start:contributors -->
+_Contributors pending._
+<!-- AI:end:contributors -->
 
-```bash
-apifuse \
-  --json-input ./repos.json \
-  /tmp/mnt_apifuse_json
-```
+## Origins
 
-Then inspect:
+<!-- AI:start:origins -->
+_Original project — no upstream fork._
+<!-- AI:end:origins -->
 
-```bash
-ls /tmp/mnt_apifuse_json
-ls /tmp/mnt_apifuse_json/0/
-cat /tmp/mnt_apifuse_json/0/name
-```
+## Resources
 
-With the `--symlink-names` flag, the contents of that `name` file (field from the json)  
-will have already been read and applied as a symlink in the root directory of the mount  
-so that you don't have to do such things as shown above in order to know which repo `0` is  
-referring to:
+<!-- AI:start:resources -->
+_No additional resource files found._
+<!-- AI:end:resources -->
 
+## License
 
-```bash
-apifuse \
-  --json-input ./repos.json \
-  --symlink-names \
-  /tmp/mnt_apifuse_json
-```
-
-Then inspect:
-
-```bash
-$ ls /tmp/mnt_apifuse_json
-$ cat /tmp/mnt_apifuse_json/apifuse/name
-apifuse
-$ cat /tmp/mnt_apifuse_json/0/name
-apifuse
-$ readlink -f /tmp/mnt_apifuse_json/apifuse
-/tmp/mnt_apifuse_json/0
-$ readlink -f /tmp/mnt_apifuse_json/0
-/tmp/mnt_apifuse_json/0
-```
-
-## Symlinking values to Collection names
-
-Note: `--symlink-names` works exactly the same in `OpenAPI` mode as what is shown above in
-the JSON example wrt to the filesystem; it just retrieves the data with an HTTP call as per
-the API spec.
-
-In addition to the symlinking using the values within common field names such as `name`,  `username`, `title`, `SLUG`, explicit alias mappings can be achieved with `--symlink-map`:  
-
-Add explicit alias mappings:
-
-```bash
-apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  --symlink-map users=username \
-  --symlink-map products=title \
-  --symlink-map products=categories/name \
-  /tmp/mnt_apifuse
-```
-
-`--symlink-map` syntax is:
-
-```text
-<collection>=<field-path>
-```
-
-The right-hand side is a path inside each resource object, not an API path.
-
-With `--json-input`, aliases are created at the root when the JSON document is a top-level list. For JSON-mode mappings, use either `root=<field-path>` or just `<field-path>`.
-
-## Authentication
-
-Auth tokens can be supplied in three ways:
-
-- `--auth-token <token>`
-- `--auth-token-file <path>`
-- `--auth-token-env <ENV_NAME>` (defaults to `APIFUSE_auth_token`)
-- `--auth-json-file <path>` (optional bundle input for `access_token`/`refresh_token`/`refresh_url`)
-
-The token value should be the raw token string. By default, `apifuse` sends it as `Authorization: Bearer <token>`.
-
-Header formatting is configurable:
-
-- `--auth-header` (default: `Authorization`)
-- `--auth-scheme` (default: `Bearer`)
-
-Optional refresh-on-401 support:
-
-- `--refresh-url`
-- `--refresh-token` / `--refresh-token-file` / `--refresh-token-env`
-- `--refresh-body-token-key` (default: `refresh_token`)
-- `--refresh-response-token-key` (default: `access_token`)
-
-Optional refresh discovery from API responses (disabled by default):
-
-- `--discover-refresh-from-response`
-- `--refresh-discovery-path <prefix>` (repeatable allowlist; when omitted, only auth-like paths are considered)
-- `--refresh-discovery-url-key <json_key>` (repeatable; defaults: `refresh_url`, `refresh_endpoint`, `token_refresh_url`)
-- `--refresh-discovery-token-key <json_key>` (repeatable; default: `refresh_token`)
-
-Precedence rule: explicit CLI/env/file refresh values win; discovered values only fill missing `refresh_url`/`refresh_token`.
-For `--auth-json-file`, JSON-derived values are only used when token/refresh values are not already provided by direct CLI, 
-token-file, or configured token-env values.
-
-
-## Caching
-
-Short-lived caching is enabled to protect the local machine and the API from noisy filesystem clients.
-
-Relevant flags:
-
-- `--cache-ttl`
-- `--error-cache-ttl`
-- `--cache-max-entries`
-- `--probe-limit`
-
-## Bootstrap Failure Policy
-
-In OpenAPI mode, apifuse performs a startup probe of sampled endpoints.
-
-- default: mount fails only if none of the sampled endpoints are reachable
-- `-f` / `--force`: mount anyway, even if bootstrap validation fails
-
-Example:
-
-```bash
-apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  --cache-ttl 5 \
-  --error-cache-ttl 2 \
-  --probe-limit 10 \
-  /tmp/mnt_apifuse
-```
-
-## Logging
-
-Enable debug logging with `--debug`
-
-```bash
-apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  --debug \
-  /tmp/mnt_apifuse
-```
-
-Write logs to a filei with `--log-file`:
-
-```bash
-apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  --debug \
-  --log-file /tmp/apifuse.log \
-  /tmp/mnt_apifuse
-```
-
-## macOS Caveat
-
-Running `apifuse` in foreground mode is the default and is the recommended mode.
-
-On macOS, libfuse's internal daemon mode has been unreliable in testing. If you need background behavior, keep `apifuse` in foreground mode and background the process externally:
-
-```bash
-nohup env apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  --log-file /tmp/apifuse.log \
-  /tmp/mnt_apifuse \
-  >/tmp/apifuse.stdout 2>&1 &
-```
-
-If you explicitly want `apifuse` to use `libfuse daemon mode` despite the warnings, use:
-
-```bash
-apifuse \
-  --api-spec ./openapi.json \
-  --server-url http://127.0.0.1:8000 \
-  --auth-token-file ./bearer.token \
-  --daemonize \
-  --log-file /tmp/apifuse.log \
-  /tmp/mnt_apifuse
-```
-
-## Unmount
-
-Ensure the `apifuse` process controlling this mount is stopped. Then run:
-
-```bash
-umount /tmp/mnt_apifuse
-```
-
-If the mount is stuck:
-
-```bash
-umount -f /tmp/mnt_apifuse
-```
-
-## Next Steps
-
-- More graceful (and earlier) handling (ignoring) of MacOS "shadow" file probes (._{filename}, .DS_Store, etc) since it is unlikely that any API or JSON data is really naming things like this
-- writable CRUD mappings for create/update/delete (Smart mappings between filesystem operation intent and HTTP POST/PUT/PATCH/DELETE)
+<!-- AI:start:license -->
+[Apache-2.0](https://github.com/Interested-Deving-1896/apifusefs/blob/main/LICENSE) © 2026 [Interested-Deving-1896](https://github.com/Interested-Deving-1896)
+<!-- AI:end:license -->
